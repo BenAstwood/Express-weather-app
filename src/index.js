@@ -4,22 +4,25 @@ const hbs = require("hbs");
 const express = require("express");
 const app = express();
 
-const accessTokens = require("../accessTokens");
+// Utility functions.
 const geocode = require("./utils/geocode");
 const forecast = require("./utils/forecast");
 
+// Define paths for Express config.
 const publicPath = path.join(__dirname, "../public");
 const viewsPath = path.join(__dirname, "../templates/views");
 const partialsPath = path.join(__dirname, "../templates/partials");
 
+// Setup handlebars engine and views location.
 app.set("view engine", "hbs");
 app.set("views", viewsPath);
 hbs.registerPartials(partialsPath);
 
+// Setup static directory to serve.
 app.use(express.static(publicPath));
 
 app.get("", (req, res) => {
-  res.render("index", {title: "new header"});
+  res.render("index", { title: "new header" });
 });
 
 app.get("/weather", (req, res) => {
@@ -49,20 +52,23 @@ app.get("/weather", (req, res) => {
         });
       }
 
-      const {summary, temperature, precipProbability} = forcastRes.body.currently;
+      const {
+        summary,
+        temperature,
+        precipProbability
+      } = forcastRes.body.currently;
 
       res.render("weather", {
         title: "Weather",
-        address: req.query.address,
+        address: geocodeRes.location,
         forecast: `Weather is ${summary}. It is currently ${temperature} degrees out. With a ${precipProbability}% chance of rain.`
       });
     });
   });
-
 });
 
 app.get("*", (req, res) => {
-  res.render("404", {title: `"${req.params[0]}" not found`});
+  res.render("404", { title: `"${req.params[0]}" not found` });
 });
 
 app.listen(3000, () => {
